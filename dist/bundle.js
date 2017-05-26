@@ -68,25 +68,6 @@
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-exports.__esModule = true;
-var game_1 = __webpack_require__(3);
-var stage_1 = __webpack_require__(6);
-var Main = (function () {
-    function Main() {
-        this.stages = [new stage_1["default"]("menu", null), new stage_1["default"]("game", new game_1["default"]()), new stage_1["default"]("end", null)];
-        this.stages[1].start();
-    }
-    return Main;
-}());
-exports["default"] = Main;
-
-
-/***/ }),
-/* 1 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -43769,6 +43750,25 @@ function CanvasRenderer() {
 
 
 /***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+exports.__esModule = true;
+var game_1 = __webpack_require__(3);
+var stage_1 = __webpack_require__(6);
+var Main = (function () {
+    function Main() {
+        this.stages = [new stage_1["default"]("menu", null), new stage_1["default"]("game", new game_1["default"]()), new stage_1["default"]("end", null)];
+        this.stages[1].start();
+    }
+    return Main;
+}());
+new Main();
+
+
+/***/ }),
 /* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -43786,12 +43786,28 @@ var __extends = (this && this.__extends) || (function () {
 })();
 exports.__esModule = true;
 var object_1 = __webpack_require__(4);
+var THREE = __webpack_require__(0);
 var Cube = (function (_super) {
     __extends(Cube, _super);
     function Cube() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
-    Cube.prototype.draw = function () {
+    Cube.prototype.render = function (scene) {
+        var material = new THREE.MeshBasicMaterial({
+            color: 0xFFFFFF
+        });
+        // Set up the sphere vars
+        var RADIUS = 50;
+        var SEGMENTS = 16;
+        var RINGS = 16;
+        // Create a new mesh with
+        // sphere geometry - we will cover
+        // the sphereMaterial next!
+        var sphere = new THREE.Mesh(new THREE.SphereGeometry(RADIUS, SEGMENTS, RINGS), material);
+        sphere.position.setZ(-300);
+        sphere.position.setX(this.x);
+        sphere.position.setY(this.y);
+        scene.add(sphere);
     };
     return Cube;
 }(object_1["default"]));
@@ -43836,7 +43852,7 @@ var GameObject = (function () {
         this.x = x;
         this.y = y;
     }
-    GameObject.prototype.render = function () {
+    GameObject.prototype.render = function (scene) {
     };
     GameObject.prototype.up = function () {
         this.y = this.y + 1;
@@ -43862,11 +43878,11 @@ exports["default"] = GameObject;
 "use strict";
 
 exports.__esModule = true;
-var THREE = __webpack_require__(1);
+var THREE = __webpack_require__(0);
 var Scene = (function () {
     function Scene(objects, properties) {
         if (objects === void 0) { objects = []; }
-        if (properties === void 0) { properties = { background: "0x1E1D23" }; }
+        if (properties === void 0) { properties = { background: "#1E1D23" }; }
         this.objects = objects;
         this.properties = properties;
         this.objects = objects;
@@ -43882,10 +43898,9 @@ var Scene = (function () {
     };
     Scene.prototype.create = function () {
         this.render();
-        this.objects.forEach(function (obj) { return obj.render(); });
     };
     Scene.prototype.update = function () {
-        this.objects.forEach(function (obj) { return obj.render(); });
+        this.render();
     };
     Scene.prototype.destroy = function () {
         this.objects = [];
@@ -43907,30 +43922,15 @@ var Scene = (function () {
         this.scene.add(light2);
     };
     Scene.prototype.render = function () {
-        var material = new THREE.MeshBasicMaterial({
-            color: this.properties.background
-        });
-        // Set up the sphere vars
-        var RADIUS = 50;
-        var SEGMENTS = 16;
-        var RINGS = 16;
-        // Create a new mesh with
-        // sphere geometry - we will cover
-        // the sphereMaterial next!
-        var sphere = new THREE.Mesh(new THREE.SphereGeometry(RADIUS, SEGMENTS, RINGS), material);
-        // Move the Sphere back in Z so we
-        // can see it.
-        sphere.position.z = -300;
-        // Finally, add the sphere to the scene.
-        this.scene.add(sphere);
-        function update() {
-            // Draw!
-            this.renderer.render(this.scene, this.camera);
-            // Schedule the next frame.
-            requestAnimationFrame(update);
-        }
-        // Schedule the first frame.
-        requestAnimationFrame(update);
+        var _this = this;
+        this.scene.background = new THREE.Color(this.properties.background);
+        this.objects.forEach(function (obj) { return obj.render(_this.scene); });
+        this.animate();
+    };
+    Scene.prototype.animate = function () {
+        var _this = this;
+        requestAnimationFrame(function () { return _this.animate(); });
+        this.renderer.render(this.scene, this.camera);
     };
     return Scene;
 }());
@@ -43983,7 +43983,7 @@ var scene_1 = __webpack_require__(5);
 var World = (function (_super) {
     __extends(World, _super);
     function World() {
-        return _super !== null && _super.apply(this, arguments) || this;
+        return _super.call(this) || this;
     }
     return World;
 }(scene_1["default"]));
@@ -43994,7 +43994,7 @@ exports["default"] = World;
 /* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(0);
+__webpack_require__(1);
 (function webpackMissingModule() { throw new Error("Cannot find module \"./e/index.js\""); }());
 (function webpackMissingModule() { throw new Error("Cannot find module \"bundle.js\""); }());
 

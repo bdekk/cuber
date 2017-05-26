@@ -39,29 +39,30 @@ class Scene {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
 
         // add canvas to dom
-        document.body.appendChild(this.renderer.domElement)
+        document.body.appendChild(this.renderer.domElement);
 
         // add axis to the scene
-        let axis = new THREE.AxisHelper(10)
+        let axis = new THREE.AxisHelper(10);
 
-        this.scene.add(axis)
+        this.scene.add(axis);
 
         // add lights
-        let light = new THREE.DirectionalLight(0xffffff, 1.0)
+        let light = new THREE.DirectionalLight(0xffffff, 1.0);
 
-        light.position.set(100, 100, 100)
+        light.position.set(100, 100, 100);
 
-        this.scene.add(light)
+        this.scene.add(light);
 
-        let light2 = new THREE.DirectionalLight(0xffffff, 1.0)
+        let light2 = new THREE.DirectionalLight(0xffffff, 1.0);
 
-        light2.position.set(-100, 100, -100)
+        light2.position.set(-100, 100, -100);
 
-        this.scene.add(light2)
+        this.scene.add(light2);
+
+        this.scene.background = new THREE.Color( this.properties.background );
     }
 
     render() {
-        this.scene.background = new THREE.Color( this.properties.background );
         this.objects.forEach(obj => obj.render(this.scene));
         this.animate();
     } 

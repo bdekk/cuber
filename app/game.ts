@@ -7,8 +7,13 @@ class Game {
     
     constructor() {
         this.world = new World();
-        this.world.add(new Cube(1,1));
+        let cube = new Cube(1,1, 20, 20);
+        this.world.add(cube);
         this.world.render();
+        // cube.down();
+        // cube.left();
+        this.world.render();
+
     }
 
     create() {    
@@ -16,6 +21,10 @@ class Game {
     }
 
     destroy() {
+
+    }
+
+    init() {
 
     }
 }

@@ -3,33 +3,25 @@ import * as THREE from 'three';
 
 class Cube extends GameObject {
 
+    constructor(protected x: number, protected y: number, protected width: number, protected height: number, private color: string = "0xFFFFFF") {
+        super(x,y, width, height);
+        this.color = color;
+    }
+
     render(scene: THREE.Scene) {
 
         let material = new THREE.MeshBasicMaterial({
-            color: 0xFFFFFF
+            color: this.color
         })
 
-        // Set up the sphere vars
-        const RADIUS = 50;
-        const SEGMENTS = 16;
-        const RINGS = 16;
+        var geometry = new THREE.BoxBufferGeometry( this.width, this.height, 1 );
+        var cube = new THREE.Mesh( geometry, material );
 
-        // Create a new mesh with
-        // sphere geometry - we will cover
-        // the sphereMaterial next!
-        const sphere = new THREE.Mesh(
+        cube.position.setZ(-300);
+        cube.position.setX(this.x);
+        cube.position.setY(this.y);
 
-        new THREE.SphereGeometry(
-            RADIUS,
-            SEGMENTS,
-            RINGS),
-        material);
-
-        sphere.position.setZ(-300);
-        sphere.position.setX(this.x);
-        sphere.position.setY(this.y);
-
-        scene.add(sphere);
+        scene.add(cube);
     }
 
 }
