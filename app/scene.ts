@@ -41,23 +41,27 @@ class Scene {
         // add canvas to dom
         document.body.appendChild(this.renderer.domElement);
 
-        // add axis to the scene
-        let axis = new THREE.AxisHelper(10);
 
-        this.scene.add(axis);
+        this.camera.position.set(0, 0, 0 );
+        // this.camera.lookAt(new THREE.Vector3( 0, 0, 0 ));
+
+        // add axis to the scene
+        // let axis = new THREE.AxisHelper(10);
+
+        // this.scene.add(axis);
 
         // add lights
-        let light = new THREE.DirectionalLight(0xffffff, 1.0);
+        // let light = new THREE.DirectionalLight(0xffffff, 1.0);
 
-        light.position.set(100, 100, 100);
+        // light.position.set(100, 100, 100);
 
-        this.scene.add(light);
+        // this.scene.add(light);
 
-        let light2 = new THREE.DirectionalLight(0xffffff, 1.0);
+        // let light2 = new THREE.DirectionalLight(0xffffff, 1.0);
 
-        light2.position.set(-100, 100, -100);
+        // light2.position.set(-100, 100, -100);
 
-        this.scene.add(light2);
+        // this.scene.add(light2);
 
         this.scene.background = new THREE.Color( this.properties.background );
     }

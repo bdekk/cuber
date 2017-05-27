@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 8);
+/******/ 	return __webpack_require__(__webpack_require__.s = 9);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -43757,7 +43757,7 @@ function CanvasRenderer() {
 
 exports.__esModule = true;
 var game_1 = __webpack_require__(3);
-var stage_1 = __webpack_require__(6);
+var stage_1 = __webpack_require__(7);
 var Main = (function () {
     function Main() {
         this.stages = [new stage_1["default"]("menu", null), new stage_1["default"]("game", new game_1["default"]()), new stage_1["default"]("end", null)];
@@ -43789,25 +43789,27 @@ var object_1 = __webpack_require__(4);
 var THREE = __webpack_require__(0);
 var Cube = (function (_super) {
     __extends(Cube, _super);
-    function Cube() {
-        return _super !== null && _super.apply(this, arguments) || this;
+    function Cube(x, y, width, height, color) {
+        if (color === void 0) { color = "0xFFFFFF"; }
+        var _this = _super.call(this, x, y, width, height) || this;
+        _this.x = x;
+        _this.y = y;
+        _this.width = width;
+        _this.height = height;
+        _this.color = color;
+        _this.color = color;
+        return _this;
     }
     Cube.prototype.render = function (scene) {
         var material = new THREE.MeshBasicMaterial({
-            color: 0xFFFFFF
+            color: this.color
         });
-        // Set up the sphere vars
-        var RADIUS = 50;
-        var SEGMENTS = 16;
-        var RINGS = 16;
-        // Create a new mesh with
-        // sphere geometry - we will cover
-        // the sphereMaterial next!
-        var sphere = new THREE.Mesh(new THREE.SphereGeometry(RADIUS, SEGMENTS, RINGS), material);
-        sphere.position.setZ(-300);
-        sphere.position.setX(this.x);
-        sphere.position.setY(this.y);
-        scene.add(sphere);
+        var geometry = new THREE.BoxBufferGeometry(this.width, this.height, 1);
+        var cube = new THREE.Mesh(geometry, material);
+        cube.position.setZ(-300);
+        cube.position.setX(this.x);
+        cube.position.setY(this.y);
+        scene.add(cube);
     };
     return Cube;
 }(object_1["default"]));
@@ -43821,17 +43823,23 @@ exports["default"] = Cube;
 "use strict";
 
 exports.__esModule = true;
-var world_1 = __webpack_require__(7);
+var world_1 = __webpack_require__(8);
 var cube_1 = __webpack_require__(2);
 var Game = (function () {
     function Game() {
         this.world = new world_1["default"]();
-        this.world.add(new cube_1["default"](1, 1));
+        var cube = new cube_1["default"](1, 1, 20, 20);
+        this.world.add(cube);
+        this.world.render();
+        // cube.down();
+        // cube.left();
         this.world.render();
     }
     Game.prototype.create = function () {
     };
     Game.prototype.destroy = function () {
+    };
+    Game.prototype.init = function () {
     };
     return Game;
 }());
@@ -43845,26 +43853,36 @@ exports["default"] = Game;
 "use strict";
 
 exports.__esModule = true;
+var point_1 = __webpack_require__(5);
 var GameObject = (function () {
-    function GameObject(x, y) {
+    function GameObject(x, y, width, height) {
         this.x = x;
         this.y = y;
+        this.width = width;
+        this.height = height;
         this.x = x;
         this.y = y;
+        this.width = width;
+        this.height = height;
     }
     GameObject.prototype.render = function (scene) {
     };
     GameObject.prototype.up = function () {
-        this.y = this.y + 1;
+        this.y = this.y - 1;
+        return new point_1["default"](this.x, this.y);
+        ;
     };
     GameObject.prototype.down = function () {
         this.y = this.y + 1;
+        return new point_1["default"](this.x, this.y);
     };
     GameObject.prototype.left = function () {
         this.x = this.x - 1;
+        return new point_1["default"](this.x, this.y);
     };
     GameObject.prototype.right = function () {
         this.x = this.x + 1;
+        return new point_1["default"](this.x, this.y);
     };
     return GameObject;
 }());
@@ -43873,6 +43891,38 @@ exports["default"] = GameObject;
 
 /***/ }),
 /* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+exports.__esModule = true;
+var Point = (function () {
+    function Point(x, y) {
+        this.x = x;
+        this.y = y;
+        this.x = x;
+        this.y = y;
+    }
+    Point.prototype.getX = function () {
+        return this.x;
+    };
+    Point.prototype.getY = function () {
+        return this.y;
+    };
+    Point.prototype.setXY = function (x, y) {
+        this.x = x;
+        this.y = y;
+    };
+    Point.prototype.equals = function (other) {
+        return this.x == other.x && this.y == other.y;
+    };
+    return Point;
+}());
+exports["default"] = Point;
+
+
+/***/ }),
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -43920,10 +43970,10 @@ var Scene = (function () {
         var light2 = new THREE.DirectionalLight(0xffffff, 1.0);
         light2.position.set(-100, 100, -100);
         this.scene.add(light2);
+        this.scene.background = new THREE.Color(this.properties.background);
     };
     Scene.prototype.render = function () {
         var _this = this;
-        this.scene.background = new THREE.Color(this.properties.background);
         this.objects.forEach(function (obj) { return obj.render(_this.scene); });
         this.animate();
     };
@@ -43938,7 +43988,7 @@ exports["default"] = Scene;
 
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -43963,7 +44013,7 @@ exports["default"] = Stage;
 
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -43979,7 +44029,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 exports.__esModule = true;
-var scene_1 = __webpack_require__(5);
+var scene_1 = __webpack_require__(6);
 var World = (function (_super) {
     __extends(World, _super);
     function World() {
@@ -43991,7 +44041,7 @@ exports["default"] = World;
 
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(1);

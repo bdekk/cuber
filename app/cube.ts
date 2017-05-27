@@ -20,7 +20,6 @@ class Cube extends GameObject {
         cube.position.setZ(-300);
         cube.position.setX(this.x);
         cube.position.setY(this.y);
-
         scene.add(cube);
     }
 
