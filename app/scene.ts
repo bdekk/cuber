@@ -7,9 +7,15 @@ class Scene {
     private camera: THREE.PerspectiveCamera;
     private renderer: THREE.WebGLRenderer;
 
+    private clickObjects: Map<GameObject, Function>;
+
     constructor(private objects: Array<GameObject> = [], private properties: any = {background: "#1E1D23"}) {
         this.objects = objects;
         this.properties = properties;
+        this.clickObjects = new Map<GameObject, Function>();
+
+        // document.addEventListener('mousedown', this._onMouseDown, false);
+        document.addEventListener('click', evt => this._onMouseDown(evt));
 
         // three.js view
         this.scene = new THREE.Scene()
@@ -74,6 +80,45 @@ class Scene {
     animate() {
         requestAnimationFrame(()=>this.animate());
         this.renderer.render(this.scene, this.camera);
+    }
+
+    remove(object: GameObject): boolean {
+        let selectedObject = this.scene.getObjectByName(object.getId());
+        if(selectedObject) {
+            this.scene.remove( selectedObject );
+            this.animate();
+            return true;
+        }
+        return false;
+    }
+
+
+    _onMouseDown(e: any): void {
+        var vectorMouse = new THREE.Vector3( //vector from camera to mouse
+            -(window.innerWidth/2-e.clientX)*2/window.innerWidth,
+            (window.innerHeight/2-e.clientY)*2/window.innerHeight,
+            -1/Math.tan(22.5*Math.PI/180)); //22.5 is half of camera frustum angle 45 degree
+        vectorMouse.applyQuaternion(this.camera.quaternion);
+        vectorMouse.normalize();        
+
+        let camX = this.camera.position.x;
+        let camY = this.camera.position.y;
+        let camZ = this.camera.position.z;
+
+        this.clickObjects.forEach((callback: Function, gameObject: GameObject) => {
+            let vectorObject = new THREE.Vector3(); //vector from camera to object
+            vectorObject.set(gameObject.getX() - camX, gameObject.getY() - camY, gameObject.getZ() - camZ);
+            vectorObject.normalize();
+            
+            if (vectorMouse.angleTo(vectorObject)*180/Math.PI < 1) {
+                //mouse's position is near object's position
+                callback.call(this);
+            }
+        });
+    }
+
+    onClick(object: GameObject, callback: Function): void {
+        this.clickObjects.set(object, callback);
     }
 }
 

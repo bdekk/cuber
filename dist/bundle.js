@@ -43825,14 +43825,20 @@ exports["default"] = Cube;
 exports.__esModule = true;
 var world_1 = __webpack_require__(8);
 var cube_1 = __webpack_require__(2);
+/**
+ * Instructions:
+ * - number shows up on screen
+ * - tap that amount of the same color cubes  (game mode: plus / multiply)
+ * - cubes are removed, new cubes appear
+ */
 var Game = (function () {
     function Game() {
         this.world = new world_1["default"]();
-        var cube = new cube_1["default"](1, 1, 20, 20);
+        var cube = new cube_1["default"](0, 0, 20, 20);
         this.world.add(cube);
         this.world.render();
-        // cube.down();
-        // cube.left();
+        cube.down();
+        cube.left();
         this.world.render();
     }
     Game.prototype.create = function () {
@@ -43960,16 +43966,18 @@ var Scene = (function () {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         // add canvas to dom
         document.body.appendChild(this.renderer.domElement);
+        this.camera.position.set(0, 0, 0);
+        // this.camera.lookAt(new THREE.Vector3( 0, 0, 0 ));
         // add axis to the scene
-        var axis = new THREE.AxisHelper(10);
-        this.scene.add(axis);
+        // let axis = new THREE.AxisHelper(10);
+        // this.scene.add(axis);
         // add lights
-        var light = new THREE.DirectionalLight(0xffffff, 1.0);
-        light.position.set(100, 100, 100);
-        this.scene.add(light);
-        var light2 = new THREE.DirectionalLight(0xffffff, 1.0);
-        light2.position.set(-100, 100, -100);
-        this.scene.add(light2);
+        // let light = new THREE.DirectionalLight(0xffffff, 1.0);
+        // light.position.set(100, 100, 100);
+        // this.scene.add(light);
+        // let light2 = new THREE.DirectionalLight(0xffffff, 1.0);
+        // light2.position.set(-100, 100, -100);
+        // this.scene.add(light2);
         this.scene.background = new THREE.Color(this.properties.background);
     };
     Scene.prototype.render = function () {
