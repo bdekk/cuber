@@ -49,9 +49,13 @@ class Game {
                 let cube: Cube = new Cube(x, y, CUBE_WIDTH, CUBE_HEIGHT, color);
                 cube.setAmount(amount);
                 this.world.add(cube);
-                this.world.onClick(cube, function() {
-                    console.log('amount' + cube.getAmount());
-                });
+                this.world.onEvent('move', cube, function() {
+                    let color = this.shadeBlend(-0.33, cube.getColor());
+                    cube.setColor(color);
+                    this.world.render(cube);
+                    // this.world.remove(cube);
+                    // this.world.render();
+                }.bind(this));
             }    
         }
     }
@@ -66,6 +70,25 @@ class Game {
             color = "#0a4d6d";
         }
         return color;
+    }
+
+    shadeBlend(p: number,c0: string, c1: string): string {
+        var n=p<0?p*-1:p,u=Math.round,w=parseInt;
+        let f: any;
+        let t: any;
+        let R: any;
+        let G: any;
+        let B: any;
+        let R1: any;
+        let B1: any;
+        let G1: any;
+        if(c0.length>7){
+            f=c0.split(","),t=(c1?c1:p<0?"rgb(0,0,0)":"rgb(255,255,255)").split(","),R=w(f[0].slice(4)),G=w(f[1]),B=w(f[2]);
+            return "rgb("+(u((w(t[0].slice(4))-R)*n)+R)+","+(u((w(t[1])-G)*n)+G)+","+(u((w(t[2])-B)*n)+B)+")"
+        }else{
+            f=w(c0.slice(1),16),t=w((c1?c1:p<0?"#000000":"#FFFFFF").slice(1),16),R1=f>>16,G1=f>>8&0x00FF,B1=f&0x0000FF;
+            return "#"+(0x1000000+(u(((t>>16)-R1)*n)+R1)*0x10000+(u(((t>>8&0x00FF)-G1)*n)+G1)*0x100+(u(((t&0x0000FF)-B1)*n)+B1)).toString(16).slice(1)
+        }
     }
 }
  

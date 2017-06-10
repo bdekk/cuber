@@ -6,21 +6,28 @@ class Scene {
     private scene: THREE.Scene;
     private camera: THREE.PerspectiveCamera;
     private renderer: THREE.WebGLRenderer;
+    private raycaster: THREE.Raycaster;
+    // private font: THREE.Font;
 
     private clickObjects: Map<GameObject, Function>;
+    private moveObjects: Map<GameObject, Function>;
+
 
     constructor(private objects: Array<GameObject> = [], private properties: any = {background: "#1E1D23"}) {
         this.objects = objects;
         this.properties = properties;
         this.clickObjects = new Map<GameObject, Function>();
+        this.moveObjects = new Map<GameObject, Function>();
 
         // document.addEventListener('mousedown', this._onMouseDown, false);
-        document.addEventListener('click', evt => this._onMouseDown(evt));
+        document.addEventListener('mousedown', evt => this._onMouseDown(evt));
+        document.addEventListener('mousemove', evt => this._onMouseMove(evt));
 
         // three.js view
         this.scene = new THREE.Scene()
         this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
-        this.renderer = new THREE.WebGLRenderer()
+        this.renderer = new THREE.WebGLRenderer();
+        this.raycaster = new THREE.Raycaster();
         this.init();
     }
 
@@ -72,10 +79,14 @@ class Scene {
         this.scene.background = new THREE.Color( this.properties.background );
     }
 
-    render() {
-        this.objects.forEach(obj => obj.render(this.scene));
+    render(obj: GameObject = null) {
+        if(obj) {
+            obj.render(this.scene);
+        } else {
+            this.objects.forEach(obj => obj.render(this.scene));
+        }
         this.animate();
-    } 
+    }
 
     animate() {
         requestAnimationFrame(()=>this.animate());
@@ -92,34 +103,88 @@ class Scene {
         return false;
     }
 
+    _findIntersects(e: any): Array<THREE.Intersection> {
+        e.preventDefault();
 
-    _onMouseDown(e: any): void {
-        var vectorMouse = new THREE.Vector3( //vector from camera to mouse
-            -(window.innerWidth/2-e.clientX)*2/window.innerWidth,
-            (window.innerHeight/2-e.clientY)*2/window.innerHeight,
-            -1/Math.tan(22.5*Math.PI/180)); //22.5 is half of camera frustum angle 45 degree
-        vectorMouse.applyQuaternion(this.camera.quaternion);
-        vectorMouse.normalize();        
+        let mouseVector = new THREE.Vector3();
+        mouseVector.x = ( e.clientX / window.innerWidth ) * 2 - 1;
+        mouseVector.y = - ( e.clientY / window.innerHeight ) * 2 + 1;
 
-        let camX = this.camera.position.x;
-        let camY = this.camera.position.y;
-        let camZ = this.camera.position.z;
+         // update the picking ray with the camera and mouse position
+        this.raycaster.setFromCamera( mouseVector, this.camera );
 
-        this.clickObjects.forEach((callback: Function, gameObject: GameObject) => {
-            let vectorObject = new THREE.Vector3(); //vector from camera to object
-            vectorObject.set(gameObject.getX() - camX, gameObject.getY() - camY, gameObject.getZ() - camZ);
-            vectorObject.normalize();
-            
-            if (vectorMouse.angleTo(vectorObject)*180/Math.PI < 1) {
-                //mouse's position is near object's position
-                callback.call(this);
-            }
-        });
+        // calculate objects intersecting the picking ray
+        let intersects = this.raycaster.intersectObjects(this.scene.children);
+        return intersects;
     }
 
-    onClick(object: GameObject, callback: Function): void {
-        this.clickObjects.set(object, callback);
+    _onMouseDown( e: any ): void {
+        let intersects: Array<THREE.Intersection> = this._findIntersects(e);
+
+        for ( let i = 0; i < intersects.length; i++ ) {
+            this.clickObjects.forEach((callback: Function, obj: GameObject) => {
+                if(intersects[ i ].object.name == obj.getId()) {
+                    callback.call(this, obj, e);
+                }
+            });
+        }
     }
+
+    _onMouseMove( e: any ): void {
+        let intersects: Array<THREE.Intersection> = this._findIntersects(e);
+
+        for ( let i = 0; i < intersects.length; i++ ) {
+            this.moveObjects.forEach((callback: Function, obj: GameObject) => {
+                if(intersects[ i ].object.name == obj.getId()) {
+                    callback.call(this, obj, e);
+                }
+            });
+        }
+    }
+
+    /*
+        params: event: 'move' or 'click', object: 'target object', callback: 'Callback function on event'
+     */
+    onEvent(event: string, object: GameObject, callback: Function): void {
+        if(event == 'click') {
+            this.clickObjects.set(object, callback);
+        } else if(event == 'move') {
+            this.moveObjects.set(object, callback);
+        }
+        
+    }
+
+    // function onMouseMove( event ) {
+
+    //     // calculate mouse position in normalized device coordinates
+    //     // (-1 to +1) for both components
+
+    //     mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+    //     mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+    // }
+
+    // function render() {
+
+    //     // update the picking ray with the camera and mouse position
+    //     raycaster.setFromCamera( mouse, camera );
+
+    //     // calculate objects intersecting the picking ray
+    //     var intersects = raycaster.intersectObjects( scene.children );
+
+    //     for ( var i = 0; i < intersects.length; i++ ) {
+
+    //         intersects[ i ].object.material.color.set( 0xff0000 );
+
+    //     }
+
+    //     renderer.render( scene, camera );
+
+    // }
+
+    // window.addEventListener( 'mousemove', onMouseMove, false );
+
+    // window.requestAnimationFrame(render);
 }
 
 export default Scene;

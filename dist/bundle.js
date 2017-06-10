@@ -43798,18 +43798,58 @@ var Cube = (function (_super) {
         _this.height = height;
         _this.color = color;
         _this.color = color;
+        _this.amount = 1;
         return _this;
     }
     Cube.prototype.render = function (scene) {
+        var mesh = this._createCube(this.color);
+        mesh.name = this.getId();
+        mesh.position.setZ(-300);
+        mesh.position.setX(this.x);
+        mesh.position.setY(this.y);
+        var text = this._createText(this.amount.toString());
+        text.position.setZ(-300);
+        text.position.setX(this.x);
+        text.position.setY(this.y);
+        scene.remove(mesh);
+        scene.add(mesh);
+        scene.remove(text);
+        scene.add(text);
+    };
+    Cube.prototype._createCube = function (color) {
         var material = new THREE.MeshBasicMaterial({
-            color: this.color
+            color: color
         });
         var geometry = new THREE.BoxBufferGeometry(this.width, this.height, 1);
-        var cube = new THREE.Mesh(geometry, material);
-        cube.position.setZ(-300);
-        cube.position.setX(this.x);
-        cube.position.setY(this.y);
-        scene.add(cube);
+        return new THREE.Mesh(geometry, material);
+    };
+    Cube.prototype._createText = function (text) {
+        var textGeometry = new THREE.TextGeometry(text, {
+            font: this.font,
+            size: 50,
+            height: 10,
+            curveSegments: 12,
+            bevelThickness: 1,
+            bevelSize: 1,
+            bevelEnabled: true
+        });
+        var textMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff, specular: 0xff0000 });
+        var textMesh = new THREE.Mesh(textGeometry, textMaterial);
+        textMesh.position.x = -textGeometry.boundingBox.max.x / 2;
+        textMesh.castShadow = true;
+        return textMesh;
+    };
+    Cube.prototype.setColor = function (color) {
+        this.color = color;
+    };
+    Cube.prototype.getColor = function () {
+        return this.color;
+    };
+    Cube.prototype.setAmount = function (amount) {
+        this.amount = amount;
+    };
+    Cube.prototype.getAmount = function () {
+        return this.amount;
     };
     return Cube;
 }(object_1["default"]));
@@ -43834,11 +43874,14 @@ var cube_1 = __webpack_require__(2);
 var Game = (function () {
     function Game() {
         this.world = new world_1["default"]();
-        var cube = new cube_1["default"](0, 0, 20, 20);
-        this.world.add(cube);
-        this.world.render();
-        cube.down();
-        cube.left();
+        this.init();
+        // let cube = new Cube(0,0, 20, 20);
+        // this.world.add(cube);
+        // this.world.render();
+        // this.world.remove(cube);
+        // cube.down();
+        // cube.left();
+        // cube.setColor("#ff3737");
         this.world.render();
     }
     Game.prototype.create = function () {
@@ -43846,6 +43889,65 @@ var Game = (function () {
     Game.prototype.destroy = function () {
     };
     Game.prototype.init = function () {
+        var H_TILES = 8;
+        var W_TILES = 8;
+        var CUBE_WIDTH = 20;
+        var CUBE_HEIGHT = 20;
+        var SPACE = 2;
+        for (var i = 0; i < H_TILES; i++) {
+            var _loop_1 = function (j) {
+                var x = i * CUBE_WIDTH + i * SPACE;
+                var y = j * CUBE_HEIGHT + j * SPACE;
+                var amount = Math.floor(Math.random() * 6) + 1;
+                var color = this_1.getColor(amount);
+                var cube = new cube_1["default"](x, y, CUBE_WIDTH, CUBE_HEIGHT, color);
+                cube.setAmount(amount);
+                this_1.world.add(cube);
+                this_1.world.onEvent('move', cube, function () {
+                    var color = this.shadeBlend(-0.33, cube.getColor());
+                    cube.setColor(color);
+                    this.world.render(cube);
+                    // this.world.remove(cube);
+                    // this.world.render();
+                }.bind(this_1));
+            };
+            var this_1 = this;
+            for (var j = 0; j < W_TILES; j++) {
+                _loop_1(j);
+            }
+        }
+    };
+    Game.prototype.getColor = function (amount) {
+        var color = "0xffffff";
+        if (amount <= 1) {
+            color = "#ff3737";
+        }
+        else if (amount <= 10) {
+            color = "#eb9909";
+        }
+        else if (amount <= 20) {
+            color = "#0a4d6d";
+        }
+        return color;
+    };
+    Game.prototype.shadeBlend = function (p, c0, c1) {
+        var n = p < 0 ? p * -1 : p, u = Math.round, w = parseInt;
+        var f;
+        var t;
+        var R;
+        var G;
+        var B;
+        var R1;
+        var B1;
+        var G1;
+        if (c0.length > 7) {
+            f = c0.split(","), t = (c1 ? c1 : p < 0 ? "rgb(0,0,0)" : "rgb(255,255,255)").split(","), R = w(f[0].slice(4)), G = w(f[1]), B = w(f[2]);
+            return "rgb(" + (u((w(t[0].slice(4)) - R) * n) + R) + "," + (u((w(t[1]) - G) * n) + G) + "," + (u((w(t[2]) - B) * n) + B) + ")";
+        }
+        else {
+            f = w(c0.slice(1), 16), t = w((c1 ? c1 : p < 0 ? "#000000" : "#FFFFFF").slice(1), 16), R1 = f >> 16, G1 = f >> 8 & 0x00FF, B1 = f & 0x0000FF;
+            return "#" + (0x1000000 + (u(((t >> 16) - R1) * n) + R1) * 0x10000 + (u(((t >> 8 & 0x00FF) - G1) * n) + G1) * 0x100 + (u(((t & 0x0000FF) - B1) * n) + B1)).toString(16).slice(1);
+        }
     };
     return Game;
 }());
@@ -43859,7 +43961,9 @@ exports["default"] = Game;
 "use strict";
 
 exports.__esModule = true;
+var THREE = __webpack_require__(0);
 var point_1 = __webpack_require__(5);
+// import myrad from './assets/fonts/myrad.json';
 var GameObject = (function () {
     function GameObject(x, y, width, height) {
         this.x = x;
@@ -43870,25 +43974,42 @@ var GameObject = (function () {
         this.y = y;
         this.width = width;
         this.height = height;
+        this.id = Math.random().toString();
+        var loader = new THREE.FontLoader();
+        loader.load('./assets/fonts/myrad.json', function (font) {
+            this.font = font;
+        });
     }
     GameObject.prototype.render = function (scene) {
     };
     GameObject.prototype.up = function () {
-        this.y = this.y - 1;
+        this.y = this.y + 10;
         return new point_1["default"](this.x, this.y);
         ;
     };
     GameObject.prototype.down = function () {
-        this.y = this.y + 1;
+        this.y = this.y - 10;
         return new point_1["default"](this.x, this.y);
     };
     GameObject.prototype.left = function () {
-        this.x = this.x - 1;
+        this.x = this.x - 10;
         return new point_1["default"](this.x, this.y);
     };
     GameObject.prototype.right = function () {
-        this.x = this.x + 1;
+        this.x = this.x + 10;
         return new point_1["default"](this.x, this.y);
+    };
+    GameObject.prototype.getId = function () {
+        return this.id;
+    };
+    GameObject.prototype.getX = function () {
+        return this.x;
+    };
+    GameObject.prototype.getY = function () {
+        return this.y;
+    };
+    GameObject.prototype.getZ = function () {
+        return -400;
     };
     return GameObject;
 }());
@@ -43939,14 +44060,21 @@ var Scene = (function () {
     function Scene(objects, properties) {
         if (objects === void 0) { objects = []; }
         if (properties === void 0) { properties = { background: "#1E1D23" }; }
+        var _this = this;
         this.objects = objects;
         this.properties = properties;
         this.objects = objects;
         this.properties = properties;
+        this.clickObjects = new Map();
+        this.moveObjects = new Map();
+        // document.addEventListener('mousedown', this._onMouseDown, false);
+        document.addEventListener('mousedown', function (evt) { return _this._onMouseDown(evt); });
+        document.addEventListener('mousemove', function (evt) { return _this._onMouseMove(evt); });
         // three.js view
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         this.renderer = new THREE.WebGLRenderer();
+        this.raycaster = new THREE.Raycaster();
         this.init();
     }
     Scene.prototype.add = function (object) {
@@ -43980,15 +44108,82 @@ var Scene = (function () {
         // this.scene.add(light2);
         this.scene.background = new THREE.Color(this.properties.background);
     };
-    Scene.prototype.render = function () {
+    Scene.prototype.render = function (obj) {
         var _this = this;
-        this.objects.forEach(function (obj) { return obj.render(_this.scene); });
+        if (obj === void 0) { obj = null; }
+        if (obj) {
+            obj.render(this.scene);
+        }
+        else {
+            this.objects.forEach(function (obj) { return obj.render(_this.scene); });
+        }
         this.animate();
     };
     Scene.prototype.animate = function () {
         var _this = this;
         requestAnimationFrame(function () { return _this.animate(); });
         this.renderer.render(this.scene, this.camera);
+    };
+    Scene.prototype.remove = function (object) {
+        var selectedObject = this.scene.getObjectByName(object.getId());
+        if (selectedObject) {
+            this.scene.remove(selectedObject);
+            this.animate();
+            return true;
+        }
+        return false;
+    };
+    Scene.prototype._findIntersects = function (e) {
+        e.preventDefault();
+        var mouseVector = new THREE.Vector3();
+        mouseVector.x = (e.clientX / window.innerWidth) * 2 - 1;
+        mouseVector.y = -(e.clientY / window.innerHeight) * 2 + 1;
+        // update the picking ray with the camera and mouse position
+        this.raycaster.setFromCamera(mouseVector, this.camera);
+        // calculate objects intersecting the picking ray
+        var intersects = this.raycaster.intersectObjects(this.scene.children);
+        return intersects;
+    };
+    Scene.prototype._onMouseDown = function (e) {
+        var _this = this;
+        var intersects = this._findIntersects(e);
+        var _loop_1 = function (i) {
+            this_1.clickObjects.forEach(function (callback, obj) {
+                if (intersects[i].object.name == obj.getId()) {
+                    callback.call(_this, obj, e);
+                }
+            });
+        };
+        var this_1 = this;
+        for (var i = 0; i < intersects.length; i++) {
+            _loop_1(i);
+        }
+    };
+    Scene.prototype._onMouseMove = function (e) {
+        var _this = this;
+        var intersects = this._findIntersects(e);
+        var _loop_2 = function (i) {
+            this_2.moveObjects.forEach(function (callback, obj) {
+                if (intersects[i].object.name == obj.getId()) {
+                    callback.call(_this, obj, e);
+                }
+            });
+        };
+        var this_2 = this;
+        for (var i = 0; i < intersects.length; i++) {
+            _loop_2(i);
+        }
+    };
+    /*
+        params: event: 'move' or 'click', object: 'target object', callback: 'Callback function on event'
+     */
+    Scene.prototype.onEvent = function (event, object, callback) {
+        if (event == 'click') {
+            this.clickObjects.set(object, callback);
+        }
+        else if (event == 'move') {
+            this.moveObjects.set(object, callback);
+        }
     };
     return Scene;
 }());

@@ -1,10 +1,11 @@
 import * as THREE from 'three';
 import Point from './point';
+// import myrad from './assets/fonts/myrad.json';
 
 class GameObject {
 
     private id: string;
-    protected mesh: THREE.Mesh;
+    protected font: THREE.Font;
 
     constructor(protected x: number, protected y: number, protected width: number, protected height: number) {
         this.x = x;
@@ -12,6 +13,11 @@ class GameObject {
         this.width = width;
         this.height = height;
         this.id = Math.random().toString();
+
+        let loader = new THREE.FontLoader();
+        // loader.load( './assets/fonts/myrad.json', function ( font: any ) {
+        //     this.font = font;
+        // });
     }
 
     render(scene: THREE.Scene) {    
