@@ -10,9 +10,11 @@ import Cube from './cube';
 class Game {
     
     world: World;
+    selected: Cube;
     
     constructor() {
         this.world = new World();
+        this.selected = null;
         this.init();
         // let cube = new Cube(0,0, 20, 20);
         // this.world.add(cube);
@@ -43,29 +45,39 @@ class Game {
             for(let j = 0; j < W_TILES; j++) {
                 let x:number = i*CUBE_WIDTH + i*SPACE;
                 let y:number  = j*CUBE_HEIGHT + j*SPACE;
-                let amount: number = Math.floor(Math.random() * 6) + 1
+                // let amount: number = Math.floor(Math.random() * 6) + 1
+                let amount: number = 1;
                 let color = this.getColor(amount);
                 
                 let cube: Cube = new Cube(x, y, CUBE_WIDTH, CUBE_HEIGHT, color);
                 cube.setAmount(amount);
                 this.world.add(cube);
-                this.world.onEvent('move', cube, function() {
-                    let color = this.shadeBlend(-0.33, cube.getColor());
-                    cube.setColor(color);
-                    this.world.render(cube);
-                    // this.world.remove(cube);
-                    // this.world.render();
+                // this.world.onEvent('move', cube, function() {
+                //     let color = this.shadeBlend(-0.33, cube.getColor());
+                //     cube.setColor(color);
+                //     this.world.render(cube);
+                //     // this.world.remove(cube);
+                //     // this.world.render();
+                // }.bind(this));
+
+                this.world.onEvent('click', cube, function() {
+                    this.selected = cube;
+                    cube.setSelected(true);
                 }.bind(this));
             }    
         }
     }
 
+    update(): void {
+        
+    }
+
     getColor(amount: number): string {
         let color: string = "0xffffff";
         if(amount <= 1) {
-            color = "#ff3737"
-        } else if(amount <= 10) {
             color = "#eb9909"
+        } else if(amount <= 10) {
+            color = "#ff3737"
         } else if(amount <= 20) {
             color = "#0a4d6d";
         }

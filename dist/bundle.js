@@ -43807,14 +43807,14 @@ var Cube = (function (_super) {
         mesh.position.setZ(-300);
         mesh.position.setX(this.x);
         mesh.position.setY(this.y);
-        var text = this._createText(this.amount.toString());
-        text.position.setZ(-300);
-        text.position.setX(this.x);
-        text.position.setY(this.y);
+        // let text = this._createText(this.amount.toString());
+        // text.position.setZ(-300);
+        // text.position.setX(this.x);
+        // text.position.setY(this.y);
         scene.remove(mesh);
         scene.add(mesh);
-        scene.remove(text);
-        scene.add(text);
+        // scene.remove(text);
+        // scene.add(text);
     };
     Cube.prototype._createCube = function (color) {
         var material = new THREE.MeshBasicMaterial({
@@ -43976,9 +43976,9 @@ var GameObject = (function () {
         this.height = height;
         this.id = Math.random().toString();
         var loader = new THREE.FontLoader();
-        loader.load('./assets/fonts/myrad.json', function (font) {
-            this.font = font;
-        });
+        // loader.load( './assets/fonts/myrad.json', function ( font: any ) {
+        //     this.font = font;
+        // });
     }
     GameObject.prototype.render = function (scene) {
     };
